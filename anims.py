@@ -15,7 +15,7 @@ class LikeDislike_4(Scene):
         self.play(DrawBorderThenFill(fig), Write(txt22), Write(txt21), Write(txt11), Write(txt12))
         self.wait(5)
 
-class Anim_5_text1(Scene):
+class Slide5_text1(Scene):
     def construct(self):
         fig = FullScreenRectangle(color='#1E1E1E').set_fill('#1E1E1E', opacity=1.0)
 
