@@ -3,6 +3,7 @@
 from manim import *
 import math
 import numpy as np
+import itertools as it
 
 class LikeDislike_4(Scene): #DONE #V1
     def construct(self):
@@ -44,9 +45,7 @@ class v1_slide5_text1(Scene): #DONE #V1
         self.wait(1)
         self.play(Transform(starttext, trans_group1))
         self.wait(1)
-        #self.play(FadeOut(trans_group1))
-        #self.play(Transform(trans_group1, trans_group2))
-        #self.wait(1)
+        #end
 
 class v2_slide4_text2(Scene): #DONE #V2
     def construct(self):
@@ -104,3 +103,81 @@ class v2_slide4_text2(Scene): #DONE #V2
         self.play(Dice_Graph.animate.change_bar_values(D_Values[1]), run_time=1, rate_func=ease_in_out_sine)
 
         self.wait(1)
+        #end
+
+class v2_slide6_table(Scene): #V2 # В бездне
+    def construct(self):
+        self.camera.background_color = '#1d1d1d'
+
+
+        Dice1 = SVGMobject(file_name='media/v2_slide4_Dices/Dice1.svg', height=0.8)
+        Dice2 = SVGMobject(file_name='media/v2_slide4_Dices/Dice2.svg', height=0.8)
+        Dice3 = SVGMobject(file_name='media/v2_slide4_Dices/Dice3.svg', height=0.8)
+        Dice4 = SVGMobject(file_name='media/v2_slide4_Dices/Dice4.svg', height=0.8)
+        Dice5 = SVGMobject(file_name='media/v2_slide4_Dices/Dice5.svg', height=0.8)
+
+        """Dices_Horisontal = VGroup(Dice1.copy().shift(k*RIGHT), Dice2.copy().shift(2*k*RIGHT),
+        Dice3.copy().shift(3*k*RIGHT), Dice4.copy().shift(4*k*RIGHT), Dice5.copy().shift(5*k*RIGHT))
+
+        Dices_Vertical = VGroup(Dice1.copy().shift(k*DOWN), Dice2.copy().shift(2*k*DOWN),
+        Dice3.copy().shift(3*k*DOWN), Dice4.copy().shift(4*k*DOWN), Dice5.copy().shift(5*k*DOWN))
+
+        Dice_Table_Dices = VGroup(Dices_Vertical, Dices_Horisontal).center()"""
+
+        Dice_Table = Table(
+            table=[['2', '3', '4', '5', '6'], ['3', '4', '5', '6', '7'], ['4', '5', '6', '7', '8'], ['5', '6', '7', '8', '9'], ['6', '7', '8', '9', '10']],
+            row_labels=[Dice1.copy(), Dice2.copy(),
+                        Dice3.copy(), Dice4.copy(), Dice5.copy()],
+            col_labels=[Dice1.copy(), Dice2.copy(),
+                        Dice3.copy(), Dice4.copy(), Dice5.copy()],
+            line_config={'stroke_width': 3, "color": GRAY_A}
+        ).scale(0.5)
+
+        Dice_Pair_1_2 = VGroup(Dice1.copy().scale(0.75), Dice2.copy().scale(0.75))
+
+        self.play(Create(Dice_Table))
+        #end
+
+class v2_slide6_animated_bars(Scene): #DONE #V2
+    def construct(self):
+        self.camera.background_color='#1e1e1e'
+
+        k = 0.7
+        kostil_1 = [['2', '3', '4', '5', '6'], ['3', '4', '5', '6', '7'], ['4', '5', '6', '7', '8'], ['5', '6', '7', '8', '9'], ['6', '7', '8', '9', '10']]
+        kostil_2 = {'10': RED, '2': RED, '3': ORANGE, '9': ORANGE, '4': YELLOW_D, '8': YELLOW_D, '5': YELLOW, '7': YELLOW, '6': GREEN}
+
+        values_table = [
+            Text(kostil_1[i][j], color=kostil_2[kostil_1[i][j]], font_size=36, font='Times New Roman').shift(UP*(5-i)*k + RIGHT*j*k) 
+            for i in range(5) for j in range(5) 
+        ]
+        
+        for i in values_table:
+            self.play(Write(i), run_time=1/25)
+
+        self.wait(1)
+
+        for idx in range(9):
+            indexes = [i for i in it.combinations_with_replacement(range(idx + 1), 2) if sum(i) == idx and all(k not in i for k in [5, 6, 7, 8, 9])]
+            indexes.extend([i[::-1] for i in indexes.copy() if i != i[::-1]])
+
+            temp = []
+            for i in indexes:
+                temp.append(values_table[i[1]+5*i[0]].copy())
+            group_from = VGroup(*temp)
+
+            rect_k = 0.5
+            curr_color = rgb_to_color([(172-idx*(172-73)/8)/255, (234-idx*(234-168)/8)/255, (215-idx*(215-143)/8)/255])
+
+            rect = Rectangle(height=(len(temp))*(rect_k/2), width=rect_k, color=curr_color).shift(rect_k*LEFT*2.5+rect_k*RIGHT*idx+(rect_k/2)*UP*(len(temp)-1)/2+DOWN)
+            kostil_stroka = r'\frac{' + f'{len(temp)}' + r'}{25}'
+            prob = MathTex(kostil_stroka, tex_to_color_map={kostil_stroka: curr_color}).scale(rect_k).move_to(rect)
+            
+            if len(temp) < 3:
+                prob.shift((rect_k/4)*UP*len(temp)+UP*(0.75*rect_k))
+            
+            group_to = VGroup(rect, prob)
+
+            self.play(Transform(group_from, group_to))
+        
+        self.wait(1)
+        #end
