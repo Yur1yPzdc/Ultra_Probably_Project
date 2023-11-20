@@ -216,23 +216,6 @@ class v2_slide8_convolution_demo(Scene): #DONE #V2
         Dice1.copy().shift(RIGHT*1.5*k+DOWN))
 
 
-        """Dice_Graph_A = BarChart(
-            values=D_Values[2], bar_names=None, 
-            bar_colors=[YELLOW_E, '#EECA30', YELLOW_D, '#FADC5A', '#FFEE6F', '#FFFF84'],
-            y_length=2, y_range=[0, 0.5, 0.5], x_length=3, bar_fill_opacity=0.9, 
-        ).shift(UP*0.4+LEFT*0.3)
-
-        Dice_Graph_B = BarChart(
-            values=D_Values[3][::-1], bar_names=None, 
-            bar_colors=[
-                rgb_to_color([118/255, 221/255, 192/255]), rgb_to_color([(118-11.25)/255, (221-13.25)/255, (192-12.25)/255]), 
-                rgb_to_color([(118-11.25*2)/255, (221-13.25*2)/255, (192-12.25*2)/255]), rgb_to_color([(118-11.25*3)/255, (221-13.25*3)/255, (192-12.25*3)/255]), 
-                rgb_to_color([(118-11.25*4)/255, (221-13.25*4)/255, (192-12.25*4)/255])
-            ][::-1],
-            y_length=2, y_range=[0, 0.5, 0.5], x_length=3, bar_fill_opacity=0.9, 
-        ).shift(UP*0.4+LEFT*0.3)"""
-
-
         Bars_A_Gradient = [ rgb_to_color([0.925,  0.671,  0.757]),
                             rgb_to_color([0.866,  0.615,  0.696]),
                             rgb_to_color([0.806,  0.56,   0.635]),
@@ -462,61 +445,75 @@ class v2_slide9_convolution_demo_lists(Scene): #DONE #V2
         self.wait(0.5)
         #end
 
-class v2_slide14_remove_2(Scene): #DONE V2
+class v2_slide16_center_mu(Scene): #DONE #V2
     def construct(self):
+
         self.camera.background_color = '#1e1e1e'
 
-        D_Values = [[5/37, 1/37, 6/37, 10/37, 16/37], [5/35, 6/35, 10/35, 14/35]]
+        D_Values = [2/37, 1/37, 4/37, 9/37, 21/37]
 
-        k = 0.8
+        k = 2/3
         Dice1 = SVGMobject(file_name='media/v2_slide4_Dices/Dice1.svg', height=0.35).shift(LEFT*2.5*k+DOWN)
         Dice2 = SVGMobject(file_name='media/v2_slide4_Dices/Dice2.svg', height=0.35).shift(LEFT*1.5*k+DOWN)
         Dice3 = SVGMobject(file_name='media/v2_slide4_Dices/Dice3.svg', height=0.35).shift(LEFT*.5*k+DOWN)
         Dice4 = SVGMobject(file_name='media/v2_slide4_Dices/Dice4.svg', height=0.35).shift(RIGHT*.5*k+DOWN)
         Dice5 = SVGMobject(file_name='media/v2_slide4_Dices/Dice5.svg', height=0.35).shift(RIGHT*1.5*k+DOWN)
-        Dice1_2 = SVGMobject(file_name='media/v2_slide4_Dices/Dice1.svg', height=0.4).shift(LEFT*1.5*k*1.25+DOWN*1.35)
-        Dice3_2 = SVGMobject(file_name='media/v2_slide4_Dices/Dice3.svg', height=0.4).shift(LEFT*0.5*k*1.25+DOWN*1.35)
-        Dice4_2 = SVGMobject(file_name='media/v2_slide4_Dices/Dice4.svg', height=0.4).shift(RIGHT*.5*k*1.25+DOWN*1.35)
-        Dice5_2 = SVGMobject(file_name='media/v2_slide4_Dices/Dice5.svg', height=0.4).shift(RIGHT*1.5*k*1.25+DOWN*1.35)
+        Dice_Group_1 = VGroup(Dice1.copy(), Dice2.copy(), Dice3.copy(), Dice4.copy(), Dice5.copy()).shift(DOWN*0.3)
 
-        Dice_Group_1 = VGroup(Dice1.copy(), Dice2.copy(), Dice3.copy(), Dice4.copy(), Dice5.copy())
-        Dice_Group_2 = VGroup(Dice1_2.copy(), Dice3_2.copy(), Dice4_2.copy(), Dice5_2.copy())
 
-        Dice_Graph_1 = BarChart(
-            values=D_Values[0], bar_names=None, 
-            bar_colors=[YELLOW_E, '#EECA30', YELLOW_D, '#FADC5A', '#FFEE6F', '#FFFF84'],
-            y_length=2, y_range=[0, 0.5, 0.5], x_length=4, bar_fill_opacity=0.9, 
-        ).shift(LEFT*0.4+UP*0.35)
+        mu_value = sum(D_Values[i]*(i+1) for i in range(0, 5))
 
-        Dice_Graph_1_Labels = Dice_Graph_1.get_axis_labels(
-            Tex("Value", color=GRAY_A).scale(0.7), 
-                        Tex("Probability", color=GRAY_A).scale(0.7))
+        Dotted_line = DashedLine(start=(0, 2, 0), end=(0, -2, 0), color=PURPLE_C, stroke_width=3).shift(LEFT*2+RIGHT*mu_value*2/3)
+    
+        Mu_text = MathTex(r'\mu_1').scale(0.7).next_to(Dotted_line, DOWN)
 
-        Dice_Graph_2 = BarChart(
-            values=D_Values[1], bar_names=None, 
-            bar_colors=[YELLOW_E, '#EECA30', YELLOW_D, '#FADC5A', '#FFEE6F', '#FFFF84'],
-            y_length=2, y_range=[0, 0.5, 0.5], x_length=4, bar_fill_opacity=0.9, 
-        ).shift(0*UP)
+        Uptext = MathTex(r'\mu_1 = a_1+2a_2+3a_3+4a_4+5a_5').scale(0.7).shift(UP*3)
 
-        Dice_Graph_2_Labels = Dice_Graph_2.get_axis_labels(
-            Tex("Value", color=GRAY_A).scale(0.7), 
-                        Tex("Probability", color=GRAY_A).scale(0.7))
 
-        group_start = VGroup(Dice_Group_1, Dice_Graph_1, Dice_Graph_1_Labels)
+        Axes1 = Axes(x_range=(0, 6, 1), y_range=(0, 0.7, 0.5), x_length=4, y_length=2.8,
+        tips=False, y_axis_config={"include_numbers":True}).shift(UP*0.4)
 
-        Krest = VGroup(Line(start=LEFT*0.6+UP*0.2, end=DOWN*0.8, color=RED).shift(LEFT*0.6+DOWN*0.5+LEFT*0.3) ,
-        Line(start=RIGHT*0.6+UP*0.2, end=DOWN*0.8, color=RED).shift(LEFT*1.2+DOWN*0.5+LEFT*0.3) )
+        Axes2_1 = NumberLine(x_range=[0, 6, 1], length=4, 
+                include_tip=False, include_numbers=True, numbers_to_exclude=[6]).shift(DOWN)
+        Axes2_2 = NumberLine(x_range=[0, 0.7, 0.5], length=2.8, rotation=90*DEGREES,
+                include_tip=False, include_numbers=True, label_direction=LEFT, numbers_to_exclude=[0]).shift(LEFT*2+UP*0.4)
+        
 
-        self.play(Create(group_start))
+        bars_colors = [YELLOW_E, '#EECA30', YELLOW_D, '#FADC5A', '#FFEE6F', '#FFFF84']
+        
+        bars = [Rectangle(color=bars_colors[i], height=4*D_Values[i], width=2/3).set_fill(color=bars_colors[i], opacity=0.9).shift(RIGHT*i*2/3+UP*2*D_Values[i]) for i in range(5)]
+        
+        Bars = VGroup(*bars).shift(LEFT*(2-1/3-0.02)+DOWN*0.98)
+
+        #bars_a_i_gradient = [YELLOW_E, '#EECA30', YELLOW_D, '#FADC5A', '#FFEE6F', '#FFFF84'].reverse()
+
+        kostil_stroki = [r'a_'+f'{i+1}' for i in range(5)]
+
+        bars_a_i_list = [MathTex(kostil_stroki[i]).next_to(bars[i], UP*0.5) for i in range(3)] + [MathTex(kostil_stroki[i]).move_to(bars[i]) for i in range(3, 5)]
+
+        Bars_a_i = VGroup(*bars_a_i_list)
+
+
+        self.play(Create(VGroup(Axes1, Bars, Dice_Group_1, Bars_a_i)))
 
         self.wait(1)
 
-        self.play(Create(Krest))
+        self.play(FadeOut(Dice_Group_1, Axes1), FadeIn(Axes2_1, Axes2_2))
 
-        self.wait(0.5)
+        self.wait(1)
 
-        self.play(ReplacementTransform(VGroup(Krest, group_start), VGroup(Dice_Graph_2, Dice_Graph_2_Labels, Dice_Group_2).shift(0.5*UP+0.5*LEFT)))
+        self.play(Create(VGroup(Dotted_line, Mu_text, Uptext)))
 
-        self.wait(0.5)
+        self.wait(1)
 
+        dict_values = {0:MathTex(r'-\mu_1').scale(0.5), 1:MathTex(r'1-\mu_1').scale(0.5), 2:MathTex(r'2-\mu_1').scale(0.5), 3:MathTex(r'3-\mu_1').scale(0.5), 4:MathTex(r'4-\mu_1').scale(0.5), 5:MathTex(r'5-\mu_1').scale(0.5)}
 
+        self.play(
+            Axes2_2.animate.shift(RIGHT*mu_value*2/3),
+            Axes2_1.animate._original__init__(x_range=[0, 6, 1], length=4, include_tip=False, include_numbers=False).shift(DOWN).add_labels(dict_values=dict_values, direction=DOWN, font_size=24, buff=0.2),
+            Mu_text.animate._original__init__(r'\mu_2=0').scale(0.7).next_to(Dotted_line, DOWN),
+            Create(MathTex(r'\mu_2 = 0').scale(0.7).next_to(Uptext, DOWN).shift(LEFT*2))
+        )
+
+        self.wait(1)
+        #end #наконецтоблять
