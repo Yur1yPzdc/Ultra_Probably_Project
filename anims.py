@@ -5,6 +5,7 @@ import math
 import numpy as np
 import itertools as it
 from fractions import Fraction
+from functools import lru_cache
 
 class LikeDislike_4(Scene): #DONE #V1
     def construct(self):
@@ -474,7 +475,7 @@ class v2_slide16_center_mu(Scene): #DONE #V2
         tips=False, y_axis_config={"include_numbers":True}).shift(UP*0.4)
 
         Axes2_1 = NumberLine(x_range=[0, 6, 1], length=4, 
-                include_tip=False, include_numbers=True, numbers_to_exclude=[6]).shift(DOWN)
+                include_tip=False, include_numbers=False).shift(DOWN)
         Axes2_2 = NumberLine(x_range=[0, 0.7, 0.5], length=2.8, rotation=90*DEGREES,
                 include_tip=False, include_numbers=True, label_direction=LEFT, numbers_to_exclude=[0]).shift(LEFT*2+UP*0.4)
         
@@ -493,12 +494,14 @@ class v2_slide16_center_mu(Scene): #DONE #V2
 
         Bars_a_i = VGroup(*bars_a_i_list)
 
+        NumberLine_numbers = VGroup(*[MathTex(f'{i}').scale(0.7).shift(DOWN*1.3+LEFT*2.3+RIGHT*i*2/3) for i in range(1, 6)])
+
 
         self.play(Create(VGroup(Axes1, Bars, Dice_Group_1, Bars_a_i)))
 
         self.wait(1)
 
-        self.play(FadeOut(Dice_Group_1, Axes1), FadeIn(Axes2_1, Axes2_2))
+        self.play(FadeOut(Dice_Group_1, Axes1), FadeIn(Axes2_1, Axes2_2, NumberLine_numbers))
 
         self.wait(1)
 
@@ -506,14 +509,428 @@ class v2_slide16_center_mu(Scene): #DONE #V2
 
         self.wait(1)
 
-        dict_values = {0:MathTex(r'-\mu_1').scale(0.5), 1:MathTex(r'1-\mu_1').scale(0.5), 2:MathTex(r'2-\mu_1').scale(0.5), 3:MathTex(r'3-\mu_1').scale(0.5), 4:MathTex(r'4-\mu_1').scale(0.5), 5:MathTex(r'5-\mu_1').scale(0.5)}
+        dict_values = {1:MathTex(r'1-\mu_1').scale(0.5), 2:MathTex(r'2-\mu_1').scale(0.5), 3:MathTex(r'3-\mu_1').scale(0.5), 4:MathTex(r'4-\mu_1').scale(0.5), 5:MathTex(r'5-\mu_1').scale(0.5)}
 
         self.play(
+            FadeOut(NumberLine_numbers),
             Axes2_2.animate.shift(RIGHT*mu_value*2/3),
-            Axes2_1.animate._original__init__(x_range=[0, 6, 1], length=4, include_tip=False, include_numbers=False).shift(DOWN).add_labels(dict_values=dict_values, direction=DOWN, font_size=24, buff=0.2),
-            Mu_text.animate._original__init__(r'\mu_2=0').scale(0.7).next_to(Dotted_line, DOWN),
+            Axes2_1.animate._original__init__(x_range=[0, 6, 1], length=4, include_tip=False, include_numbers=False).shift(DOWN),
+            FadeIn(VGroup(*[dict_values[i].shift(DOWN*1.3+LEFT*2.3+RIGHT*i*2/3+DOWN*(i%2)*0.2) for i in range(1, 6)])),
+            Mu_text.animate._original__init__(r'\mu_2=0').scale(0.7).next_to(Dotted_line, DOWN*0.7),
             Create(MathTex(r'\mu_2 = 0').scale(0.7).next_to(Uptext, DOWN).shift(LEFT*2))
         )
 
         self.wait(1)
-        #end #наконецтоблять
+        #end
+
+class v2_slide17_dispersion(Scene): #DONE #V2
+    def construct(self):
+
+    #region init
+        self.camera.background_color = '#1e1e1e'
+
+        D_Values = [2/37, 1/37, 4/37, 9/37, 21/37]
+    #endregion
+
+    #region mu
+        mu1_value = sum(D_Values[i]*(i+1) for i in range(0, 5))
+
+        Mu_dotted_line = DashedLine(start=(0, 2, 0), end=(0, -2, 0), color=PURPLE_C, stroke_width=3).shift(LEFT*2+RIGHT*mu1_value*2/3)
+    
+        Mu1_text = MathTex(r'\mu_1').scale(0.7).next_to(Mu_dotted_line, DOWN)
+
+        Mu_1_uptext = MathTex(r'\mu_1 = a_1+2a_2+3a_3+4a_4+5a_5').scale(0.7).shift(UP*2.3)
+    #endregion
+
+    #region sigma
+        sigma_square_value = sum(D_Values[i]*((i+1)-mu1_value)**2 for i in range(0, 5))
+
+        Sigma_square_dotted_line_right = DashedLine(start=(0, 2, 0), end=(0, -2, 0), color=TEAL_D, stroke_width=3).shift(LEFT*2+RIGHT*mu1_value*2/3)
+
+        Sigma_square_dotted_line_left = DashedLine(start=(0, 2, 0), end=(0, -2, 0), color=TEAL_D, stroke_width=3).shift(LEFT*2+RIGHT*mu1_value*2/3)
+
+        #Sigma_uptext = MathTex(r'\sigma \approx' + f'').scale(0.7).move_to()
+    #endregion
+    
+    #region axes
+        Axes2_1 = NumberLine(x_range=[0, 6, 1], length=4, 
+                include_tip=False, include_numbers=True, numbers_to_exclude=[6]).shift(DOWN)
+        Axes2_2 = NumberLine(x_range=[0, 0.7, 0.5], length=2.8, rotation=90*DEGREES,
+                include_tip=False, include_numbers=True, label_direction=LEFT, numbers_to_exclude=[0]).shift(LEFT*2+UP*0.4)
+    #endregion
+
+    #region bars
+        bars_colors = [YELLOW_E, '#EECA30', YELLOW_D, '#FADC5A', '#FFEE6F', '#FFFF84']
+        
+        bars = [Rectangle(color=bars_colors[i], height=4*D_Values[i], width=2/3).set_fill(color=bars_colors[i], opacity=0.9).shift(RIGHT*i*2/3+UP*2*D_Values[i]) for i in range(5)]
+        
+        Bars = VGroup(*bars).shift(LEFT*(2-1/3-0.02)+DOWN*0.98)
+
+        kostil_stroki = [r'a_'+f'{i+1}' for i in range(5)]
+
+        bars_a_i_list = [MathTex(kostil_stroki[i]).next_to(bars[i], UP*0.5) for i in range(3)] + [MathTex(kostil_stroki[i]).move_to(bars[i]) for i in range(3, 5)]
+
+        Bars_a_i = VGroup(*bars_a_i_list)
+    #endregion
+    
+    #region setup
+        dict_values = {0:MathTex(r'-\mu_1').scale(0.5), 1:MathTex(r'1-\mu_1').scale(0.5), 2:MathTex(r'2-\mu_1').scale(0.5), 3:MathTex(r'3-\mu_1').scale(0.5), 4:MathTex(r'4-\mu_1').scale(0.5), 5:MathTex(r'5-\mu_1').scale(0.5)}
+    
+        Axes2_2.shift(RIGHT*mu1_value*2/3)
+
+        Axes2_1 = NumberLine(x_range=[0, 6, 1], length=4, include_tip=False, include_numbers=False).shift(DOWN).add_labels(dict_values=dict_values, direction=DOWN, font_size=24, buff=0.2)
+        
+        Mu1_text = MathTex(r'\mu_2=0').scale(0.7).next_to(Mu_dotted_line, DOWN)
+
+        Mu_2_uptext = MathTex(r'\mu_2 = 0').scale(0.7).next_to(Mu_1_uptext, DOWN).shift(LEFT*2)
+    #endregion
+
+        self.play(Create(VGroup(Bars, Bars_a_i, Axes2_1, Axes2_2, Mu_1_uptext, Mu_2_uptext)))
+
+        self.wait(1)
+
+        self.play(Create(VGroup(Sigma_square_dotted_line_right, Sigma_square_dotted_line_left)))
+
+        self.play(
+            Sigma_square_dotted_line_right.animate(rate_func=smooth).shift(RIGHT*sigma_square_value/3),
+            Sigma_square_dotted_line_left.animate(rate_func=smooth).shift(LEFT*sigma_square_value/3)
+        )
+        self.wait(1)
+
+        Sigma_square_arrow = DoubleArrow(start=Sigma_square_dotted_line_left.get_center(), end=Sigma_square_dotted_line_right.get_center(), buff=0, max_stroke_width_to_length_ratio=5).shift(DOWN*2)
+        
+        Sigma_square_text = MathTex(r'\sigma^2').scale(0.7).next_to(Sigma_square_arrow, DOWN*0.5)
+
+        self.play(Create(VGroup(Sigma_square_arrow, Sigma_square_text)))
+
+        self.wait(1)
+        #end
+
+class v2_slide18_asymmetry(Scene): #DONE #V2
+    def construct(self):
+
+    #region init
+
+        self.camera.background_color = '#1e1e1e'
+
+        D_Values = [2/37, 1/37, 4/37, 9/37, 21/37]
+
+    #endregion
+
+    #region mu
+
+        mu1_value = sum(D_Values[i]*(i+1) for i in range(0, 5))
+
+        Mu_2_line = DashedLine(start=(0, 2, 0), end=(0, -2, 0), color=PURPLE_C, stroke_width=3).shift(LEFT*2+RIGHT*mu1_value*2/3)
+    
+        #Mu1_text = MathTex(r'\mu_1').scale(0.7).next_to(Mu_dotted_line, DOWN)
+
+        Mu_1_uptext = MathTex(r'\mu_1 = a_1+2a_2+3a_3+4a_4+5a_5').scale(0.7).shift(UP*3)
+
+        Mu_2_uptext = MathTex(r'\mu_2 = 0').scale(0.7).next_to(Mu_1_uptext, DOWN).shift(LEFT*2)
+
+    #endregion
+
+    #region sigma
+
+        sigma_square_value = sum(D_Values[i]*((i+1)-mu1_value)**2 for i in range(0, 5))
+
+        #Sigma_square_dotted_line_right = DashedLine(start=(0, 2, 0), end=(0, -2, 0), color=TEAL_D, stroke_width=3).shift(LEFT*2+RIGHT*mu1_value*2/3)
+
+        #Sigma_square_dotted_line_left = DashedLine(start=(0, 2, 0), end=(0, -2, 0), color=TEAL_D, stroke_width=3).shift(LEFT*2+RIGHT*mu1_value*2/3)
+
+        #Sigma_uptext = MathTex(r'\sigma \approx' + f'').scale(0.7).move_to()
+
+    #endregion
+
+    #region rho_k_and_gamma
+
+        rho_k_value = sum(D_Values[i]*((i+1)-mu1_value)**3 for i in range(0, 5))
+
+        gamma_value = rho_k_value / sigma_square_value**1.5
+
+        Gamma_line = DashedLine(start=(0, 2, 0), end=(0, -2, 0), color=TEAL_D, stroke_width=3).shift(LEFT*2+RIGHT*gamma_value*2/3+RIGHT*(2/3*4.5))
+
+        Gamma_arrow = Arrow(start=Mu_2_line.get_center(), end=Gamma_line.get_center(), buff=0, max_stroke_width_to_length_ratio=5).shift(UP*1.6)
+
+        Gamma_text = MathTex(r'\gamma').scale(0.7).next_to(Gamma_arrow, UP*0.5)
+
+        Gamma_uptext = MathTex(r'\gamma = \frac{\rho_k}{(\sigma^2)^{1.5}}').next_to(Mu_2_uptext, DOWN).shift(RIGHT*0.3+UP*0.3).scale(0.7)
+
+        #Rho_k_dotted_line_right = DashedLine(start=(0, 2, 0), end=(0, -2, 0), color=TEAL_D, stroke_width=3).shift(LEFT*2+RIGHT*mu1_value*2/3)
+
+        #Rho_k_dotted_line_left = DashedLine(start=(0, 2, 0), end=(0, -2, 0), color=TEAL_D, stroke_width=3).shift(LEFT*2+RIGHT*mu1_value*2/3)
+
+    #endregion
+    
+    #region axes
+
+        Axes2_1 = NumberLine(x_range=[0, 6, 1], length=4, 
+                include_tip=False, include_numbers=True, numbers_to_exclude=[6]).shift(DOWN)
+        Axes2_2 = NumberLine(x_range=[0, 0.7, 0.5], length=2.8, rotation=90*DEGREES,
+                include_tip=False, include_numbers=True, label_direction=LEFT, numbers_to_exclude=[0]).shift(LEFT*2+UP*0.4)
+
+    #endregion
+
+    #region bars
+
+        bars_colors = [YELLOW_E, '#EECA30', YELLOW_D, '#FADC5A', '#FFEE6F', '#FFFF84']
+        
+        bars = [Rectangle(color=bars_colors[i], height=4*D_Values[i], width=2/3).set_fill(color=bars_colors[i], opacity=0.9).shift(RIGHT*i*2/3+UP*2*D_Values[i]) for i in range(5)]
+        
+        Bars = VGroup(*bars).shift(LEFT*(2-1/3-0.02)+DOWN*0.98)
+
+        kostil_stroki = [r'a_'+f'{i+1}' for i in range(5)]
+
+        bars_a_i_list = [MathTex(kostil_stroki[i]).next_to(bars[i], UP*0.5) for i in range(3)] + [MathTex(kostil_stroki[i]).move_to(bars[i]) for i in range(3, 5)]
+
+        Bars_a_i = VGroup(*bars_a_i_list)
+    #endregion
+    
+    #region setup
+
+        dict_values = {0:MathTex(r'-\mu_1').scale(0.5), 1:MathTex(r'1-\mu_1').scale(0.5), 2:MathTex(r'2-\mu_1').scale(0.5), 3:MathTex(r'3-\mu_1').scale(0.5), 4:MathTex(r'4-\mu_1').scale(0.5), 5:MathTex(r'5-\mu_1').scale(0.5)}
+    
+        Axes2_2.shift(RIGHT*mu1_value*2/3)
+
+        Axes2_1 = NumberLine(x_range=[0, 6, 1], length=4, include_tip=False, include_numbers=False).shift(DOWN).add_labels(dict_values=dict_values, direction=DOWN, font_size=24, buff=0.2)
+        
+        #Mu1_text = MathTex(r'\mu_2=0').scale(0.7).next_to(Mu_2_dotted_line, DOWN)
+
+    #endregion
+
+        self.play(Create(VGroup(Bars, Bars_a_i, Axes2_1, Axes2_2, Mu_1_uptext, Mu_2_uptext)))
+
+        self.wait(1)
+
+        self.play(Create(Mu_2_line))
+
+        self.wait(1)
+
+        self.play(Create(VGroup(Gamma_line, Gamma_arrow)), Write(VGroup(Gamma_text, Gamma_uptext)))
+
+        self.wait(1)
+        #end
+    
+class v2_slide21_gigaconvolution(Scene): #2/3 DONE #V2
+    def construct(self):
+
+        def return_indexes_by_iter(length1:int, iter:int, length2:int=5):
+            real_iter = iter+1
+            assert 0<=iter<=length1+length2-1
+                        
+            phase = 4 - sum(iter in i for i in (range(0, length2-1), range(0, length1), range(0, (length1+length2-1))))
+
+            match phase:
+                case 1:
+                    return (tuple(range(0, real_iter)),                 tuple(range(length2-1, length2-real_iter-1, -1)))
+                case 2:
+                    return (tuple(range(real_iter-length2, real_iter)), tuple(range(length2-1, 0-1, -1)))
+                case 3:
+                    return (tuple(range(real_iter-length2, length1)),   tuple(range(length1+length2-real_iter-1, 0-1, -1)))
+
+        def return_gradient(idx):
+            dlina = 1+4*(idx+1) + 3
+            return [rgb_to_color([((227) - i*(227-50)/dlina)/255,  ((209) - i*(209-32)/dlina)/255,  ((244) - i*(244-57)/dlina)/255]) for i in range(dlina)]
+
+        def return_convolved(previous_values):
+            D_Values = list(reversed([2/37, 1/37, 4/37, 9/37, 21/37]))
+            #previous_values = reversed(previous_values)
+            values = []
+            values.extend(list(sum(a*b for a,b in zip(previous_values[:1+i], D_Values[-1-i:])) for i in range(4)))
+            values.extend(list(sum(a*b for a,b in zip(previous_values[(i-4):1+i], D_Values)) for i in range(4, len(previous_values))))
+            values.extend(list(sum(a*b for a,b in zip(previous_values[-4+i-1:], D_Values[:4-i+1])) for i in range(1, 5)))
+            #print(sum(values), previous_values, '\n')
+            return values
+
+        @lru_cache
+        def return_convolved_by_index(idx):
+            if idx == 0:
+                return [2/37, 1/37, 4/37, 9/37, 21/37]
+            if idx == 1:
+                return return_convolved([2/37, 1/37, 4/37, 9/37, 21/37])
+            return return_convolved(return_convolved_by_index(idx-1))
+                     
+        #region init
+
+        self.camera.background_color = '#1e1e1e'
+
+        D_Values = [2/37, 1/37, 4/37, 9/37, 21/37]
+
+        mean_bars_0 = sum((i+1)*D_Values[i] for i in range(5))
+
+        #print(mean_bars_0)
+
+        #times = 121
+        
+        bars_k = 0.3
+
+        highlight_Color = WHITE
+        
+        #endregion
+
+        #region items_bars convolves
+
+        values_bars_0 = list(i for i in D_Values)
+
+        values_bars_0_reversed = list(i for i in D_Values[::-1])
+
+        coefficient_bars_0 = 1/max(D_Values)
+
+
+        finale_0_bars = [Rectangle(color=return_gradient(0)[3+iter], fill_color=return_gradient(0)[iter], width=1/(5*bars_k), fill_opacity=0.9, height=(coefficient_bars_0)*(values_bars_0[iter])).shift(UP*(coefficient_bars_0)*(values_bars_0[iter])/2+iter*RIGHT*(1/(5*bars_k))) for iter in range(5)]
+
+        finale_0_bars_reversed = [Rectangle(color=return_gradient(0)[3+iter], fill_color=return_gradient(0)[iter], width=1/(5*bars_k), fill_opacity=0.9, height=(coefficient_bars_0)*(values_bars_0_reversed[iter])).shift(UP*(coefficient_bars_0)*(values_bars_0_reversed[iter])/2+iter*RIGHT*(1/(5*bars_k))) for iter in range(5)]
+
+
+        values_bars_1 = return_convolved_by_index(1)
+
+        coefficient_bars_1 = 1/max(values_bars_1)
+
+        dlina_vyborki_bars_1 = 5+4*1
+
+        mean_bars_1 = sum((i+1)*values_bars_1[i] for i in range(dlina_vyborki_bars_1))
+
+        #mean_bars_x_1 = 1/mean_bars_1
+
+        #print(mean_bars_1)
+
+        finale_1_bars = [Rectangle(color=return_gradient(1)[3+iter], fill_color=return_gradient(1)[iter], width=1/(dlina_vyborki_bars_1*bars_k), fill_opacity=0.9, height=(coefficient_bars_1)*(values_bars_1[iter])).shift(UP*(coefficient_bars_1)*(values_bars_1[iter])/2+iter*RIGHT*(1/(9*bars_k))) for iter in range(dlina_vyborki_bars_1)]
+        finale_1_bars_reversed = [Rectangle(color=return_gradient(0)[3+iter], fill_color=return_gradient(0)[iter], width=1/(9*bars_k), fill_opacity=0.9, height=(coefficient_bars_0)*(values_bars_0_reversed[iter])).shift(UP*(coefficient_bars_0)*(values_bars_0_reversed[iter])/2+iter*RIGHT*(1/(9*bars_k))) for iter in range(5)]
+
+
+        values_bars_2 = return_convolved_by_index(2)
+
+        coefficient_bars_2 = 1/max(values_bars_2)
+
+        dlina_vyborki_bars_2 = 5+4*2
+
+        mean_bars_2 = sum((i+1)*values_bars_2[i] for i in range(dlina_vyborki_bars_2))
+
+        #mean_bars_x_2 = 1/mean_bars_2
+
+        #print(mean_bars_2)
+
+        finale_2_bars = [Rectangle(color=return_gradient(2)[3+iter], fill_color=return_gradient(2)[iter], width=1/(dlina_vyborki_bars_2*bars_k), fill_opacity=0.9, height=(coefficient_bars_2)*(values_bars_2[iter])).shift(UP*(coefficient_bars_2)*(values_bars_2[iter])/2+iter*RIGHT*(1/(13*bars_k))) for iter in range(dlina_vyborki_bars_2)]
+
+
+        values_bars_120 = return_convolved_by_index(120)
+
+        coefficient_bars_120 = 1/max(values_bars_120)
+
+        dlina_vyborki_bars_120 = 5+4*120
+        
+        mean_bars_120 = sum((i+1)*values_bars_120[i] for i in range(dlina_vyborki_bars_120))
+
+        #mean_bars_x_121 = 1/mean_bars_121
+
+        #print(mean_bars_121)
+
+        finale_120_bars = [Rectangle(color=return_gradient(120)[3+iter], fill_color=return_gradient(120)[iter], width=1/(dlina_vyborki_bars_120*bars_k), fill_opacity=0.9, height=(coefficient_bars_120)*(values_bars_120[iter])).shift(UP*(coefficient_bars_120)*(values_bars_120[iter])/2+iter*RIGHT*(1/((5+4*120)*bars_k))) for iter in range(dlina_vyborki_bars_120)]
+
+
+        values_bars_121 = return_convolved_by_index(121)
+
+        coefficient_bars_121 = 1/max(values_bars_121)
+
+        dlina_vyborki_bars_121 = 5+4*121
+
+        mean_bars_121 = sum((i+1)*values_bars_121[i] for i in range(dlina_vyborki_bars_121))
+
+        #mean_bars_x_121 = 1/mean_bars_121
+
+        #print(mean_bars_121)
+
+        finale_121_bars = [Rectangle(color=return_gradient(121)[3+iter], fill_color=return_gradient(121)[iter], width=1/(dlina_vyborki_bars_121*bars_k), fill_opacity=0.9, height=(coefficient_bars_121)*(values_bars_121[iter])).shift(UP*(coefficient_bars_121)*(values_bars_121[iter])/2+iter*RIGHT*(1/((5+4*121)*bars_k))) for iter in range(dlina_vyborki_bars_121)]
+
+
+        Bars_0 = VGroup(*finale_0_bars).center()
+        Bars_1 = VGroup(*finale_1_bars).center()
+        Bars_2 = VGroup(*finale_2_bars).center()
+        Bars_120 = VGroup(*finale_120_bars).center()
+        Bars_121 = VGroup(*finale_121_bars).center()
+
+        #endregion
+
+        #region items_actual convolves
+        
+            #region group_0
+        abscissa_0_labels = {1: Tex(r'$1-\mu$'), 2: Tex(r'$2-\mu$'), 3: Tex(r'$3-\mu$'), 4: Tex(r'$4-\mu$'), 5: Tex(r'$5-\mu$')}
+        
+        Abscissa_0 = NumberLine(x_range=[0, 5, 1], length=5*(2/3), font_size=22, 
+                include_tip=False, include_numbers=False, exclude_origin_tick=True).add_labels(dict_values=abscissa_0_labels, direction=DOWN).next_to(Bars_0, direction=DOWN, buff=0).shift(LEFT*1/6+UP*0.1)
+
+        Ordinata_0 = NumberLine(x_range=[-0.1, 1, 1.1], length=1.2, label_direction=LEFT, decimal_number_config={"num_decimal_places": 0},
+                include_tip=False, include_numbers=True, rotation=DEGREES*90).next_to(Abscissa_0, direction=LEFT, buff=0).shift(UP*0.658)
+        
+        Gruppa_0_nahuy = VGroup(Bars_0, Abscissa_0, Ordinata_0)
+            #endregion
+        
+            #region group_1
+        Abscissa_1 = NumberLine(x_range=[0, 9, 1], length=5*(2/3), font_size=22, 
+                include_tip=False, include_numbers=False, exclude_origin_tick=True).next_to(Bars_1, direction=DOWN, buff=0).shift(LEFT*1/6+UP*0.1)
+
+        Ordinata_1 = NumberLine(x_range=[-0.1, 1, 1.1], length=1.2, label_direction=LEFT, decimal_number_config={"num_decimal_places": 0},
+                include_tip=False, include_numbers=True, rotation=DEGREES*90).next_to(Abscissa_1, direction=LEFT, buff=0).shift(UP*0.48)
+        
+        Gruppa_1_nahuy = VGroup(Bars_1, Abscissa_1, Ordinata_1).move_to(Gruppa_0_nahuy)
+            #endregion
+
+        Pobochnie_bars_0 = VGroup(*finale_0_bars_reversed).center()
+        Pobochnie_bars_1 = VGroup(*finale_1_bars_reversed).center()
+
+        #endregion
+        
+        #self.add(Gruppa_1_nahuy)
+        self.play(Create(Gruppa_0_nahuy.shift(UP*2+LEFT*2)))
+        #self.add(Line(start=[0, 10, 0], end=[0, -10, 0], stroke_width=DEFAULT_STROKE_WIDTH/4).shift(LEFT*(2+2/3+2)))
+        self.play(Create(Pobochnie_bars_0.shift(LEFT*(2+5*2/3)))) 
+        self.wait(0.5)
+
+        result_iter_1 = []
+        for iter in range(9):
+
+            self.play(Pobochnie_bars_0.animate(run_time=0.5).shift(RIGHT*(2/3)), run_time=0.2)
+
+            bar_result = finale_1_bars[iter].copy().shift(RIGHT*2+UP*2)
+            result_iter_1.append(bar_result)
+
+            indexes_a, indexes_b = return_indexes_by_iter(length1=5, iter=iter)
+
+            self.play(*[finale_0_bars[idx].animate.set_fill(highlight_Color, 0.9) for idx in indexes_a], *[finale_0_bars_reversed[idx].animate.set_fill(highlight_Color, 0.9) for idx in indexes_b], run_time=0.2)
+            
+            self.play(ReplacementTransform(VGroup(*[finale_0_bars[idx].copy() for idx in indexes_a], *[finale_0_bars_reversed[idx].copy() for idx in indexes_b]), 
+            target_mobject=bar_result.move_to(bar_result)), run_time=0.6)
+
+            self.play(*[finale_0_bars[idx].animate.set_fill(return_gradient(0)[idx], 0.9) for idx in indexes_a], *[finale_0_bars_reversed[idx].animate.set_fill(return_gradient(0)[idx], 0.9) for idx in indexes_b], run_time=0.2)
+
+        self.play(FadeOut(VGroup(Gruppa_0_nahuy, Pobochnie_bars_0)))
+
+
+        self.play(ReplacementTransform(VGroup(*result_iter_1), target_mobject=Gruppa_1_nahuy.shift(UP*2+LEFT*2)))
+
+        self.play(Create(Pobochnie_bars_1.shift(LEFT*(2+7*(2/3*5/9))))) 
+        
+
+        result_iter_2 = []
+        for iter in range(13):
+
+            self.play(Pobochnie_bars_1.animate(run_time=0.5).shift(RIGHT*(2/3*5/9)), run_time=0.2)
+
+            bar_result = finale_2_bars[iter].shift(RIGHT*2+UP*2)
+            result_iter_2.append(bar_result)
+
+            indexes_a, indexes_b = return_indexes_by_iter(length1=9, iter=iter)
+
+            self.play(*[finale_1_bars[idx].animate.set_fill(highlight_Color, 0.9) for idx in indexes_a], *[finale_1_bars_reversed[idx].animate.set_fill(highlight_Color, 0.9) for idx in indexes_b], run_time=0.2)
+            
+            self.play(ReplacementTransform(VGroup(*[finale_1_bars[idx].copy() for idx in indexes_a], *[finale_1_bars_reversed[idx].copy() for idx in indexes_b]), 
+            target_mobject=bar_result.move_to(bar_result)), run_time=0.6)
+
+            self.play(*[finale_1_bars[idx].animate.set_fill(return_gradient(1)[idx], 0.9) for idx in indexes_a], *[finale_1_bars_reversed[idx].animate.set_fill(return_gradient(1)[idx], 0.9) for idx in indexes_b], run_time=0.2)
+
+        self.play(FadeOut(VGroup(Gruppa_1_nahuy, Pobochnie_bars_1)))
+
+
+        self.wait(1)
+
