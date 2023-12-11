@@ -712,7 +712,7 @@ class v2_slide18_asymmetry(Scene): #DONE #V2
         self.wait(1)
         #end
     
-class v2_slide21_gigaconvolution(Scene): #2/3 DONE #V2
+class v2_slide21_gigaconvolution(Scene): #DONE #V2
     def construct(self):
 
         def return_indexes_by_iter(length1:int, iter:int, length2:int=5):
@@ -773,14 +773,14 @@ class v2_slide21_gigaconvolution(Scene): #2/3 DONE #V2
 
         values_bars_0 = list(i for i in D_Values)
 
-        values_bars_0_reversed = list(i for i in D_Values[::-1])
+        values_bars_reversed = list(i for i in values_bars_0[::-1])
 
         coefficient_bars_0 = 1/max(D_Values)
 
 
         finale_0_bars = [Rectangle(color=return_gradient(0)[3+iter], fill_color=return_gradient(0)[iter], width=1/(5*bars_k), fill_opacity=0.9, height=(coefficient_bars_0)*(values_bars_0[iter])).shift(UP*(coefficient_bars_0)*(values_bars_0[iter])/2+iter*RIGHT*(1/(5*bars_k))) for iter in range(5)]
 
-        finale_0_bars_reversed = [Rectangle(color=return_gradient(0)[3+iter], fill_color=return_gradient(0)[iter], width=1/(5*bars_k), fill_opacity=0.9, height=(coefficient_bars_0)*(values_bars_0_reversed[iter])).shift(UP*(coefficient_bars_0)*(values_bars_0_reversed[iter])/2+iter*RIGHT*(1/(5*bars_k))) for iter in range(5)]
+        finale_0_bars_reversed = [Rectangle(color=return_gradient(0)[3+iter], fill_color=return_gradient(0)[iter], width=1/(5*bars_k), fill_opacity=0.9, height=(coefficient_bars_0)*(values_bars_reversed[iter])).shift(UP*(coefficient_bars_0)*(values_bars_reversed[iter])/2+iter*RIGHT*(1/(5*bars_k))) for iter in range(5)]
 
 
         values_bars_1 = return_convolved_by_index(1)
@@ -796,7 +796,7 @@ class v2_slide21_gigaconvolution(Scene): #2/3 DONE #V2
         #print(mean_bars_1)
 
         finale_1_bars = [Rectangle(color=return_gradient(1)[3+iter], fill_color=return_gradient(1)[iter], width=1/(dlina_vyborki_bars_1*bars_k), fill_opacity=0.9, height=(coefficient_bars_1)*(values_bars_1[iter])).shift(UP*(coefficient_bars_1)*(values_bars_1[iter])/2+iter*RIGHT*(1/(9*bars_k))) for iter in range(dlina_vyborki_bars_1)]
-        finale_1_bars_reversed = [Rectangle(color=return_gradient(0)[3+iter], fill_color=return_gradient(0)[iter], width=1/(9*bars_k), fill_opacity=0.9, height=(coefficient_bars_0)*(values_bars_0_reversed[iter])).shift(UP*(coefficient_bars_0)*(values_bars_0_reversed[iter])/2+iter*RIGHT*(1/(9*bars_k))) for iter in range(5)]
+        finale_1_bars_reversed = [Rectangle(color=return_gradient(0)[3+iter], fill_color=return_gradient(0)[iter], width=1/(dlina_vyborki_bars_1*bars_k), fill_opacity=0.9, height=(coefficient_bars_0)*(values_bars_reversed[iter])).shift(UP*(coefficient_bars_0)*(values_bars_reversed[iter])/2+iter*RIGHT*(1/(dlina_vyborki_bars_1*bars_k))) for iter in range(5)]
 
 
         values_bars_2 = return_convolved_by_index(2)
@@ -827,6 +827,7 @@ class v2_slide21_gigaconvolution(Scene): #2/3 DONE #V2
         #print(mean_bars_121)
 
         finale_120_bars = [Rectangle(color=return_gradient(120)[3+iter], fill_color=return_gradient(120)[iter], width=1/(dlina_vyborki_bars_120*bars_k), fill_opacity=0.9, height=(coefficient_bars_120)*(values_bars_120[iter])).shift(UP*(coefficient_bars_120)*(values_bars_120[iter])/2+iter*RIGHT*(1/((5+4*120)*bars_k))) for iter in range(dlina_vyborki_bars_120)]
+        finale_120_bars_reversed = [Rectangle(color=return_gradient(0)[3+iter], fill_color=return_gradient(0)[iter], width=1/(dlina_vyborki_bars_120*bars_k), fill_opacity=0.9, height=(coefficient_bars_0)*(values_bars_reversed[iter])).shift(UP*(coefficient_bars_0)*(values_bars_reversed[iter])/2+iter*RIGHT*(1/(dlina_vyborki_bars_120*bars_k))) for iter in range(5)]
 
 
         values_bars_121 = return_convolved_by_index(121)
@@ -876,13 +877,53 @@ class v2_slide21_gigaconvolution(Scene): #2/3 DONE #V2
         Gruppa_1_nahuy = VGroup(Bars_1, Abscissa_1, Ordinata_1).move_to(Gruppa_0_nahuy)
             #endregion
 
+            #region group 2
+        Abscissa_2 = NumberLine(x_range=[0, dlina_vyborki_bars_2, 1], length=5*(2/3), font_size=22, 
+                include_tip=False, include_numbers=False, exclude_origin_tick=True).next_to(Bars_2, direction=DOWN, buff=0).shift(LEFT*1/6+UP*0.1)
+
+        Ordinata_2 = NumberLine(x_range=[-0.1, 1, 1.1], length=1.2, label_direction=LEFT, decimal_number_config={"num_decimal_places": 0},
+                include_tip=False, include_numbers=True, rotation=DEGREES*90).next_to(Abscissa_2, direction=LEFT, buff=0).shift(UP*0.48)
+        
+        Gruppa_2_nahuy = VGroup(Bars_2, Abscissa_2, Ordinata_2).move_to(Gruppa_0_nahuy)
+            #endregion
+
+            #region group 120
+        Abscissa_120 = NumberLine(x_range=[0, dlina_vyborki_bars_120, 1], length=5*(2/3), font_size=22, 
+                include_tip=False, include_numbers=False, exclude_origin_tick=True, include_ticks=False).next_to(Bars_120, direction=DOWN, buff=0).shift(LEFT*1/6)
+
+        Ordinata_120 = NumberLine(x_range=[-0.1, 1, 1.1], length=1.2, label_direction=LEFT, decimal_number_config={"num_decimal_places": 0},
+                include_tip=False, include_numbers=True, rotation=DEGREES*90).next_to(Abscissa_120, direction=LEFT, buff=0).shift(UP*0.48)
+        
+        Gruppa_120_nahuy = VGroup(Bars_120, Abscissa_120, Ordinata_120).move_to(Gruppa_0_nahuy)
+            #endregion
+
+            #region group 121
+        Abscissa_121 = NumberLine(x_range=[0, dlina_vyborki_bars_121, 1], length=5*(2/3), font_size=22, 
+                include_tip=False, include_numbers=False, exclude_origin_tick=True, include_ticks=False).next_to(Bars_121, direction=DOWN, buff=0).shift(LEFT*1/6)
+
+        Ordinata_121 = NumberLine(x_range=[-0.1, 1, 1.1], length=1.2, label_direction=LEFT, decimal_number_config={"num_decimal_places": 0},
+                include_tip=False, include_numbers=True, rotation=DEGREES*90).next_to(Abscissa_121, direction=LEFT, buff=0).shift(UP*0.48)
+        
+        Gruppa_121_nahuy = VGroup(Bars_121, Abscissa_121, Ordinata_121).move_to(Gruppa_0_nahuy)
+            #endregion
+
+
         Pobochnie_bars_0 = VGroup(*finale_0_bars_reversed).center()
         Pobochnie_bars_1 = VGroup(*finale_1_bars_reversed).center()
+        Pobochnie_bars_120 = VGroup(*finale_120_bars_reversed).center()
 
+        Text_iter_0 = Text('Iteration 0', font='Times New Roman', font_size=22)
+        Text_iter_1 = Text('Iteration 1', font='Times New Roman', font_size=22)
+        Text_iter_2 = Text('Iteration 2', font='Times New Roman', font_size=22)
+        Text_iter_120 = Text('Iteration 120', font='Times New Roman', font_size=22)
+        Text_iter_121 = Text('Iteration 121', font='Times New Roman', font_size=22)
+
+        Text_118_iterations_later = Text('118 iterations later', font='Times New Roman', font_size=40)
+        
         #endregion
         
-        #self.add(Gruppa_1_nahuy)
-        self.play(Create(Gruppa_0_nahuy.shift(UP*2+LEFT*2)))
+        #self.add(Gruppa_2_nahuy, Text_iter_2, VGroup(*[finale_2_bars[iter].copy().shift(RIGHT*2+UP*1.8) for iter in range(13)]))
+        self.play(Create(Gruppa_0_nahuy.shift(UP*2+LEFT*2)), Create(Text_iter_0.next_to(Gruppa_0_nahuy, direction=UP)))
         #self.add(Line(start=[0, 10, 0], end=[0, -10, 0], stroke_width=DEFAULT_STROKE_WIDTH/4).shift(LEFT*(2+2/3+2)))
         self.play(Create(Pobochnie_bars_0.shift(LEFT*(2+5*2/3)))) 
         self.wait(0.5)
@@ -892,7 +933,7 @@ class v2_slide21_gigaconvolution(Scene): #2/3 DONE #V2
 
             self.play(Pobochnie_bars_0.animate(run_time=0.5).shift(RIGHT*(2/3)), run_time=0.2)
 
-            bar_result = finale_1_bars[iter].copy().shift(RIGHT*2+UP*2)
+            bar_result = finale_1_bars[iter].copy().shift(RIGHT*2+UP*2.15)
             result_iter_1.append(bar_result)
 
             indexes_a, indexes_b = return_indexes_by_iter(length1=5, iter=iter)
@@ -904,12 +945,13 @@ class v2_slide21_gigaconvolution(Scene): #2/3 DONE #V2
 
             self.play(*[finale_0_bars[idx].animate.set_fill(return_gradient(0)[idx], 0.9) for idx in indexes_a], *[finale_0_bars_reversed[idx].animate.set_fill(return_gradient(0)[idx], 0.9) for idx in indexes_b], run_time=0.2)
 
-        self.play(FadeOut(VGroup(Gruppa_0_nahuy, Pobochnie_bars_0)))
+        self.play(FadeOut(VGroup(Gruppa_0_nahuy, Pobochnie_bars_0, Text_iter_0)))
 
 
         self.play(ReplacementTransform(VGroup(*result_iter_1), target_mobject=Gruppa_1_nahuy.shift(UP*2+LEFT*2)))
 
-        self.play(Create(Pobochnie_bars_1.shift(LEFT*(2+7*(2/3*5/9))))) 
+        #self.add(Gruppa_1_nahuy.shift(UP*2+LEFT*2))
+        self.play(Create(Pobochnie_bars_1.shift(LEFT*(2.05+7*(2/3*5/9)))), Create(Text_iter_1.next_to(Gruppa_1_nahuy, direction=UP))) 
         
 
         result_iter_2 = []
@@ -917,7 +959,7 @@ class v2_slide21_gigaconvolution(Scene): #2/3 DONE #V2
 
             self.play(Pobochnie_bars_1.animate(run_time=0.5).shift(RIGHT*(2/3*5/9)), run_time=0.2)
 
-            bar_result = finale_2_bars[iter].shift(RIGHT*2+UP*2)
+            bar_result = finale_2_bars[iter].copy().shift(RIGHT*2+UP*2)
             result_iter_2.append(bar_result)
 
             indexes_a, indexes_b = return_indexes_by_iter(length1=9, iter=iter)
@@ -929,8 +971,44 @@ class v2_slide21_gigaconvolution(Scene): #2/3 DONE #V2
 
             self.play(*[finale_1_bars[idx].animate.set_fill(return_gradient(1)[idx], 0.9) for idx in indexes_a], *[finale_1_bars_reversed[idx].animate.set_fill(return_gradient(1)[idx], 0.9) for idx in indexes_b], run_time=0.2)
 
-        self.play(FadeOut(VGroup(Gruppa_1_nahuy, Pobochnie_bars_1)))
+        self.play(FadeOut(VGroup(Gruppa_1_nahuy, Pobochnie_bars_1, Text_iter_1)))
 
 
+        self.play(ReplacementTransform(VGroup(*result_iter_2), target_mobject=VGroup(Gruppa_2_nahuy.shift(UP*2+LEFT*2), Text_iter_2.next_to(Gruppa_2_nahuy, direction=UP))))
+
+        self.wait(2)
+        self.play(FadeOut(VGroup(Gruppa_2_nahuy, Text_iter_2.next_to(Gruppa_2_nahuy, direction=UP))))
+        self.play(FadeIn(Text_118_iterations_later))
         self.wait(1)
+        self.play(FadeOut(Text_118_iterations_later))
+        self.wait(1)
+
+        self.play(Create(Gruppa_120_nahuy.shift(UP*2+LEFT*2)), Create(Text_iter_120.next_to(Gruppa_120_nahuy, direction=UP)))
+        self.play(Create(Pobochnie_bars_120.shift(LEFT*(3.75)))) 
+
+        Result_iter_121 = VGroup(*[finale_121_bars[iter].copy().shift(RIGHT*2+UP*1.8) for iter in range(dlina_vyborki_bars_121)])
+
+        '''for iter in range(dlina_vyborki_bars_121):
+
+            self.play(Pobochnie_bars_120.animate(run_time=0.5).shift(RIGHT*(2/3*5/dlina_vyborki_bars_120)), run_time=0.2)
+
+            bar_result = finale_121_bars[iter].copy().shift(RIGHT*2+UP*1.8)
+            result_iter_121.append(bar_result)
+
+            indexes_a, indexes_b = return_indexes_by_iter(length1=dlina_vyborki_bars_120, iter=iter)
+
+            #self.play(*[finale_120_bars[idx].animate.set_fill(highlight_Color, 0.9) for idx in indexes_a], *[finale_120_bars_reversed[idx].animate.set_fill(highlight_Color, 0.9) for idx in indexes_b], run_time=0.2)
+            
+            self.play(ReplacementTransform(VGroup(*[finale_120_bars[idx].copy() for idx in indexes_a], *[finale_120_bars_reversed[idx].copy() for idx in indexes_b]), 
+            target_mobject=bar_result.move_to(bar_result)), run_time=0.6)
+
+            #self.play(*[finale_1_bars[idx].animate.set_fill(return_gradient(1)[idx], 0.9) for idx in indexes_a], *[finale_1_bars_reversed[idx].animate.set_fill(return_gradient(1)[idx], 0.9) for idx in indexes_b], run_time=0.2)
+'''
+
+        self.play(Pobochnie_bars_120.animate.shift(RIGHT*(2/3*5/dlina_vyborki_bars_120*dlina_vyborki_bars_121)), FadeIn(Result_iter_121, shift=RIGHT))
+
+        self.play(FadeOut(VGroup(Gruppa_120_nahuy, Pobochnie_bars_120, Text_iter_120)))
+
+        self.play(ReplacementTransform(Result_iter_121, target_mobject=VGroup(Gruppa_121_nahuy, Text_iter_121.next_to(Gruppa_121_nahuy, direction=UP)).center()))
+    #end
 
